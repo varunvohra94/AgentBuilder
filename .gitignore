@@ -1,0 +1,20 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Mac OS
+.DS_Store
+
+# Terraform
+**/terraform.tfstate
+**/terraform.tfstate.*
+**/.terraform
+**/.terraform.lock.hcl
+**/*.tfvars
