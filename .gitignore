@@ -17,4 +17,5 @@ wheels/
 **/terraform.tfstate.*
 **/.terraform
 **/.terraform.lock.hcl
-**/*.tfvars
+*.tfvars
+!terraform/environments/dev/terraform.tfvars

@@ -4,3 +4,11 @@ resource "google_project_service" "enabled_apis" {
   service            = each.value
   disable_on_destroy = false
 }
+
+module "github_wif" {
+  source       = "../../modules/github_wif"
+  project_id   = var.project_id
+  github_repo  = var.github_repo
+  github_owner = var.github_owner
+  environment  = var.environment
+}
