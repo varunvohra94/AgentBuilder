@@ -50,7 +50,7 @@ jobs:
     # 2. Execute PLAN only during the Pull Request phase
     - name: Terraform Plan
       if: github.event_name == 'pull_request'
-      run: terraform plan -no-color
+      run: terraform plan -no-color -input=false
 
     # 3. Execute APPLY only when code lands on the main branch
     - name: Terraform Apply
