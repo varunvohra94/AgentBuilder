@@ -12,3 +12,11 @@ module "github_wif" {
   github_owner = var.github_owner
   environment  = var.environment
 }
+
+module "vector_search" {
+  source      = "../../modules/vector_search"
+  project_id  = var.project_id
+  region      = var.region
+  environment = var.environment
+  dimensions  = 1408
+}
