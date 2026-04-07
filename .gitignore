@@ -19,3 +19,8 @@ wheels/
 **/.terraform.lock.hcl
 *.tfvars
 !terraform/environments/dev/terraform.tfvars
+
+# Environment variables
+.env
+.env.*
+!.env.example
