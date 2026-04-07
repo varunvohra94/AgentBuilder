@@ -1,0 +1,47 @@
+name: Python Data Pipeline Tests
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'data_pipeline/**'
+      - 'app/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'data_pipeline/**'
+      - 'app/**'
+
+jobs:
+  test-data-pipeline:
+    name: Run Pytest (Data Pipeline)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./data_pipeline
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Dependencies
+        run: uv sync
+
+      - name: Lint with Ruff
+        run: uv run ruff check .
+
+      - name: Check Formatting with Ruff
+        run: uv run ruff format --check .
+
+      - name: Run Unit Tests
+        run: uv run pytest -v
