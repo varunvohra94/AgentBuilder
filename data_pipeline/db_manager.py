@@ -1,14 +1,17 @@
-import os
-import json
 import argparse
-from dotenv import load_dotenv
-from google.cloud import storage, aiplatform
+import json
+import os
+
 import vertexai
+from dotenv import load_dotenv
+from google.cloud import aiplatform, storage
 from vertexai.vision_models import MultiModalEmbeddingModel
 
 
 class VectorDBManager:
-    """Manages the lifecycle and data ingestion for a Vertex AI Vector Search Database."""
+    """
+    Manages the lifecycle and data ingestion for a Vertex AI Vector Search Database.
+    """
 
     def __init__(self, env_file=".env.dev"):
         # Encapsulate state: Load variables upon instantiation
