@@ -6,9 +6,10 @@ from google.cloud import storage, aiplatform
 import vertexai
 from vertexai.vision_models import MultiModalEmbeddingModel
 
+
 class VectorDBManager:
     """Manages the lifecycle and data ingestion for a Vertex AI Vector Search Database."""
-    
+
     def __init__(self, env_file=".env.dev"):
         # Encapsulate state: Load variables upon instantiation
         load_dotenv(env_file)
@@ -17,10 +18,10 @@ class VectorDBManager:
         self.bucket_name = os.getenv("GCS_BUCKET_NAME")
         self.index_id = os.getenv("INDEX_ID")
         self.endpoint_id = os.getenv("ENDPOINT_ID")
-        
+
         if not all([self.project_id, self.region, self.bucket_name]):
             raise ValueError(f"Missing core environment variables in {env_file}.")
-            
+
         self.bucket_uri = f"gs://{self.bucket_name}/new_data/"
 
         # Initialize Google Cloud clients
@@ -33,7 +34,7 @@ class VectorDBManager:
         print(f"Generating 1,408-dimension vector for: '{text}'...")
         model = MultiModalEmbeddingModel.from_pretrained("multimodalembedding")
         embeddings = model.get_embeddings(contextual_text=text)
-        
+
         record = {"id": "doc-001", "embedding": embeddings.text_embedding}
         jsonl_content = json.dumps(record) + "\n"
 
@@ -49,11 +50,15 @@ class VectorDBManager:
             raise ValueError("INDEX_ID and ENDPOINT_ID required for deployment.")
 
         my_index = aiplatform.MatchingEngineIndex(index_name=self.index_id)
-        my_endpoint = aiplatform.MatchingEngineIndexEndpoint(index_endpoint_name=self.endpoint_id)
+        my_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=self.endpoint_id
+        )
 
         print(f"1. Updating Index from {self.bucket_uri}...")
-        my_index.update_embeddings(contents_delta_uri=self.bucket_uri, is_complete_overwrite=False)
-        
+        my_index.update_embeddings(
+            contents_delta_uri=self.bucket_uri, is_complete_overwrite=False
+        )
+
         print("\n2. Deploying Index to Endpoint (⏳ this takes ~40 minutes)...")
         my_endpoint.deploy_index(index=my_index, deployed_index_id=deployment_id)
         print("\n✅ Database is live and mounted.")
@@ -63,27 +68,38 @@ class VectorDBManager:
         if not self.endpoint_id:
             raise ValueError("ENDPOINT_ID required for teardown.")
 
-        my_endpoint = aiplatform.MatchingEngineIndexEndpoint(index_endpoint_name=self.endpoint_id)
+        my_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=self.endpoint_id
+        )
         deployed_indexes = my_endpoint.deployed_indexes
-        
+
         if not deployed_indexes:
             print("🟢 Endpoint is already empty. You are not being billed!")
             return
 
-        print(f"🟡 Found {len(deployed_indexes)} active deployment(s). Spinning down...")
+        print(
+            f"🟡 Found {len(deployed_indexes)} active deployment(s). Spinning down..."
+        )
         for active_index in deployed_indexes:
             index_id = active_index.deployed_index_id
             print(f"Undeploying '{index_id}'...")
             my_endpoint.undeploy_index(deployed_index_id=index_id)
-            
+
         print("✅ Teardown complete! Billing has stopped.")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Vertex AI Vector Database Manager")
-    parser.add_argument("action", choices=["ingest", "deploy", "teardown"], help="Action to perform")
-    parser.add_argument("--text", type=str, default="Vertex AI handles multimodal vectors fast.", 
-                        help="Text to embed (only used with 'ingest')")
-    
+    parser.add_argument(
+        "action", choices=["ingest", "deploy", "teardown"], help="Action to perform"
+    )
+    parser.add_argument(
+        "--text",
+        type=str,
+        default="Vertex AI handles multimodal vectors fast.",
+        help="Text to embed (only used with 'ingest')",
+    )
+
     args = parser.parse_args()
     manager = VectorDBManager()
 
