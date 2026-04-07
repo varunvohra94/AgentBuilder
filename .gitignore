@@ -24,3 +24,10 @@ wheels/
 .env
 .env.*
 !.env.example
+
+# Testing and Coverage artifacts
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.pytest_cache/
